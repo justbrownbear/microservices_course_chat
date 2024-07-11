@@ -28,7 +28,6 @@ func generateRandomID() int64 {
 	var result int64
 
 	err := binary.Read(rand.Reader, binary.BigEndian, &result)
-
 	if err != nil {
 		log.Printf("Failed to generate random id: %v", err)
 		return 0

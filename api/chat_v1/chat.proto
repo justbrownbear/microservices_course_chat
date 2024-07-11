@@ -14,7 +14,6 @@ service ChatV1 {
 	rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
 }
 
-
 message CreateRequest {
 	repeated string usernames = 1;
 }
