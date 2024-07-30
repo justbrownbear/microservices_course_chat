@@ -1,0 +1,23 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "internal/repository/user/sql/queries.sql"
+    schema: "migrations"
+    gen:
+      go:
+        package: "user_repository"
+        out: "internal/repository/user"
+        sql_package: "pgx/v5"
+        output_db_file_name: ""
+        output_models_file_name: ""
+
+  - engine: "postgresql"
+    queries: "internal/repository/chat/sql/queries.sql"
+    schema: "migrations"
+    gen:
+      go:
+        package: "chat_repository"
+        out: "internal/repository/chat"
+        sql_package: "pgx/v5"
+        output_db_file_name: ""
+        output_models_file_name: ""

@@ -4,30 +4,29 @@ import (
 	"context"
 	"log"
 
-	"google.golang.org/protobuf/types/known/emptypb"
-
 	chat_service "github.com/justbrownbear/microservices_course_chat/internal/service/chat"
 	"github.com/justbrownbear/microservices_course_chat/pkg/chat_v1"
 )
 
 // ***************************************************************************************************
 // ***************************************************************************************************
-func (chatControllerInstance *controller) SendMessage(ctx context.Context, req *chat_v1.SendMessageRequest) (*emptypb.Empty, error) {
-	log.Printf("SendMessage request fired: %v", req.String())
+func (chatControllerInstance *controller) CreateChat(ctx context.Context, req *chat_v1.CreateChatRequest) (*chat_v1.CreateChatResponse, error) {
+	log.Printf("Create request fired: %v", req.String())
 
-	payload := &chat_service.SendMessageRequest{
-		ChatID:  req.ChatId,
-		UserID:  req.UserId,
-		Message: req.Message,
+	payload := &chat_service.CreateChatRequest{
+		UserID:   req.GetUserId(),
+		ChatName: req.GetChatName(),
 	}
 
-	err := chatControllerInstance.grpcAPI.SendMessage(ctx, payload)
+	chatID, err := chatControllerInstance.grpcAPI.CreateChat(ctx, payload)
 	if err != nil {
 		log.Printf("%v", err)
 		return nil, err
 	}
 
-	result := &emptypb.Empty{}
+	result := &chat_v1.CreateChatResponse{
+		Id: chatID,
+	}
 
 	return result, nil
 }

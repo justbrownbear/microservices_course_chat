@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package user_v1;
+
+import "google/protobuf/empty.proto";
+
+option go_package = "github.com/justbrownbear/microservices_course_chat/pkg/user_v1;user_v1";
+
+
+service UserV1 {
+	// Создание пользователя
+	rpc CreateUser(CreateUserRequest) returns (CreateUserResponse);
+	// Удаление пользователя
+	rpc DeleteUser(DeleteUserRequest) returns (google.protobuf.Empty);
+}
+
+message CreateUserRequest {
+	string nickname = 1;
+}
+
+message CreateUserResponse {
+	uint64 id = 1;
+}
+
+message DeleteUserRequest {
+	uint64 userId = 1;
+}

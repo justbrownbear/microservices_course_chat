@@ -1,23 +1,63 @@
 package main
 
 import (
-	"fmt"
+	"context"
+	"flag"
+	"log"
+	"os"
 
 	"github.com/fatih/color"
+
 	"github.com/justbrownbear/microservices_course_chat/app"
+	"github.com/justbrownbear/microservices_course_chat/internal/config"
 )
 
-// Used gRPC protocol
-const gRPCProtocol = "tcp"
+var configPath string
 
-// Used gRPC port
-const gRPCPort = 9098
+func init() {
+	flag.StringVar(&configPath, "config-path", ".env", "path to config file")
+}
 
 func main() {
-	app.InitApp()
+	ctx := context.Background()
 
-	err := app.StartApp(gRPCProtocol, gRPCPort)
+	grpcConfig, postgresqlConfig := getConfig()
+
+	app.InitApp(ctx, postgresqlConfig)
+	defer app.StopApp()
+
+	gRPCProtocol := grpcConfig.GetGrpcProtocol()
+	gRPCHost := grpcConfig.GetGrpcHost()
+	gRPCPort := grpcConfig.GetGrpcPort()
+	err := app.StartApp(gRPCProtocol, gRPCHost, gRPCPort)
 	if err != nil {
-		fmt.Println(color.RedString("Failed to start app: %v", err))
+		log.Fatalf(color.RedString("Failed to start app: %v", err))
 	}
+}
+
+func getConfig() (config.GRPCConfig, config.PostgresqlConfig) {
+	flag.Parse()
+
+	currentDir, err := os.Getwd()
+	if err != nil {
+		log.Fatalf(color.RedString("Failed to get current directory: %v", err))
+	}
+	log.Println("Current Directory:", currentDir)
+
+	err = config.Load(configPath)
+	if err != nil {
+		log.Fatalf(color.RedString("Failed to load config: %v", err))
+	}
+
+	grpcConfig, err := config.GetGrpcConfig()
+	if err != nil {
+		log.Fatalf(color.RedString("Failed to get gRPC config: %v", err))
+	}
+
+	postgresqlConfig, err := config.GetPostgresqlConfig()
+	if err != nil {
+		log.Fatalf(color.RedString("Failed to get PostgreSQL config: %v", err))
+	}
+
+	return grpcConfig, postgresqlConfig
 }

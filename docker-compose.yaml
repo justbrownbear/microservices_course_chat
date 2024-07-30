@@ -1,0 +1,27 @@
+version: "3"
+
+
+volumes:
+  postgres_data:
+
+
+services:
+  postgresql:
+    image: postgres:16.3-alpine3.20
+    container_name: chat_postgresql
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - "POSTGRES_USER=${POSTGRES_USER}"
+      - "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}"
+      - "POSTGRES_DB=${POSTGRES_DB}"
+    ports:
+      - "${POSTGRES_PORT}:5432"
+
+  migrator:
+    build:
+      context: .
+      dockerfile: migration_container/Dockerfile
+    restart: on-failure
+    environment:
+      DB_HOST: postgresql
