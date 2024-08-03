@@ -90,54 +90,31 @@ jobs:
       - name: Checkout branch
         uses: actions/checkout@v4
 
-      - name: Deploy to Selectel Cloud via SSH action
-        uses: masterjanic/docker-compose-ssh-deployment@master
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh_host: ${{ secrets.SERVER_HOST }}
-          ssh_user: ${{ secrets.SSH_USERNAME }}
-          ssh_private_key: ${{ secrets.SSH_KEY }}
-          envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_HOST,POSTGRES_PORT,POSTGRES_DB,GRPC_PROTOCOL,GRPC_HOST,GRPC_PORT
+          ssh-private-key: ${{ secrets.SSH_KEY }}
 
+      - name: Copy docker-compose.yaml to server
+        run: scp -o StrictHostKeyChecking=no docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/chat
 
-      # - name: Deploy to Selectel Cloud via SSH action
-      #   uses: appleboy/ssh-action@v1.0.0
-      #   with:
-      #     host: ${{ secrets.SERVER_HOST }}
-      #     username: ${{ secrets.SSH_USERNAME }}
-      #     key: ${{ secrets.SSH_KEY }}
-      #     envs: IMAGE_NAME,REGISTRY,GITHUB_SHA,CONTAINER_NAME,POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_HOST,POSTGRES_PORT,POSTGRES_DB,GRPC_PROTOCOL,GRPC_HOST,GRPC_PORT
-      #     script: |
-      #       # Set up variables
-      #       TAG_NAME=$(echo $GITHUB_SHA | head -c7)
+      - name: Deploy to server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            # Set up variables
+            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
 
-      #       # Login into Selectel Registry
-      #       docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
+            # Login into Selectel Registry
+            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
 
-      #       # Stop running container
-      #       # docker stop $CONTAINER_NAME
-
-      #       # Remove old container
-      #       # docker rm $CONTAINER_NAME
-
-      #       # Run a new container from a new image
-      #       # docker run -d \
-      #       #   --name $CONTAINER_NAME \
-      #       #   -p ${{ secrets.GRPC_PORT }}:${{ secrets.GRPC_PORT }} \
-      #       #   -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
-      #       #   -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
-      #       #   -e POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
-      #       #   -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
-      #       #   -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
-      #       #   -e GRPC_PROTOCOL=${{ secrets.GRPC_PROTOCOL }} \
-      #       #   -e GRPC_HOST=${{ secrets.GRPC_HOST }} \
-      #       #   -e GRPC_PORT=${{ secrets.GRPC_PORT }} \
-      #       #   -t $REGISTRY/$IMAGE_NAME:$TAG_NAME
-      #       docker-compose -f docker-compose.yaml up -d \
-      #         -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
-      #         -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
-      #         -e POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
-      #         -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
-      #         -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
-      #         -e GRPC_PROTOCOL=${{ secrets.GRPC_PROTOCOL }} \
-      #         -e GRPC_HOST=${{ secrets.GRPC_HOST }} \
-      #         -e GRPC_PORT=${{ secrets.GRPC_PORT }}
+            # Run a new container from a new image
+            docker-compose -f /chat/docker-compose.yaml up -d \
+              -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
+              -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
+              -e POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
+              -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
+              -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
+              -e GRPC_PROTOCOL=${{ secrets.GRPC_PROTOCOL }} \
+              -e GRPC_HOST=${{ secrets.GRPC_HOST }} \
+              -e GRPC_PORT=${{ secrets.GRPC_PORT }}
+          EOF
