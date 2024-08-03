@@ -5,10 +5,12 @@
 
 package chat_repository
 
-import "context"
+import (
+	"context"
+)
 
 const createChat = `-- name: CreateChat :one
-INSERT INTO public.chats (admin_user_id, name,create_user_id)
+INSERT INTO public.chats (admin_user_id, name, create_user_id)
 	VALUES ($1, $2, $1)
 	RETURNING id
 `

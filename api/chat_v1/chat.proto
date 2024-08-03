@@ -16,10 +16,9 @@ service ChatV1 {
 	rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
 }
 
-
 message CreateChatRequest {
-	uint64 userId = 1;
-	string chatName = 2;
+	uint64 user_id = 1;
+	string chat_name = 2;
 }
 
 message CreateChatResponse {
@@ -27,11 +26,11 @@ message CreateChatResponse {
 }
 
 message DeleteChatRequest {
-	uint64 chatId = 1;
+	uint64 chat_id = 1;
 }
 
 message SendMessageRequest {
-	uint64 userId = 1;
-	uint64 chatId = 2;
+	uint64 user_id = 1;
+	uint64 chat_id = 2;
 	string message = 3;
 }

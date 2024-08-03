@@ -5,7 +5,9 @@
 
 package user_repository
 
-import "context"
+import (
+	"context"
+)
 
 const createUser = `-- name: CreateUser :one
 INSERT INTO public.users (nickname)

@@ -23,5 +23,5 @@ message CreateUserResponse {
 }
 
 message DeleteUserRequest {
-	uint64 userId = 1;
+	uint64 user_id = 1;
 }

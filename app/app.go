@@ -53,7 +53,7 @@ func StartApp(
 	grpcHost string,
 	grpcPort uint16,
 ) error {
-	listenAddress := grpcHost + ":" + strconv.Itoa(int(grpcPort))
+	listenAddress := net.JoinHostPort(grpcHost, strconv.Itoa(int(grpcPort)))
 	listener, err := net.Listen(grpcProtocol, listenAddress)
 	if err != nil {
 		log.Printf(color.RedString("Failed to initialize listener: %v"), err)
