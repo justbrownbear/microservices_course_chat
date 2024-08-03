@@ -97,7 +97,7 @@ jobs:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
       - name: Copy docker-compose.yaml to server
-        run: scp -o StrictHostKeyChecking=no docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:$APP_FOLDER
+        run: scp -o StrictHostKeyChecking=no docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:/root/
 
       - name: Deploy to server
         run: |
