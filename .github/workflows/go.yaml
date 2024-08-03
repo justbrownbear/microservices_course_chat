@@ -108,6 +108,8 @@ jobs:
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
 
             # Make a configuration file
+            cd /chat
+            touch .env
             echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > /chat/.env
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> /chat/.env
             echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> /chat/.env
@@ -118,6 +120,5 @@ jobs:
             echo "GRPC_PORT=${{ secrets.GRPC_PORT }}" >> /chat/.env
 
             # Run a new container from a new image
-            cd /chat
             docker compose -f ./docker-compose.yaml up -d
           EOF
