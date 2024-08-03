@@ -9,7 +9,7 @@ REGISTRY:=cr.selcloud.ru/docker-registry
 REGISTRY_USER:=token
 REGISTRY_PASS:=CRgAAAAAbxq0rZGxpEw4ny2EuFRK5rGlYUAUqnsZ
 PACKAGE_NAME:=chat
-PACKAGE_VERSION:=v0.0.1
+PACKAGE_VERSION:=v0.0.2
 
 install-deps:
 	GOBIN=$(LOCAL_BIN) go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.28.1
@@ -72,5 +72,5 @@ generate-sqlc:
 
 docker-build-and-push:
 	docker buildx build --no-cache --platform linux/amd64 -t $(REGISTRY)/$(PACKAGE_NAME):$(PACKAGE_VERSION) .
-	# docker login -u $(REGISTRY_USER) -p $(REGISTRY_PASS) $(REGISTRY)
-	# docker push $(REGISTRY)/$(PACKAGE_NAME):$(PACKAGE_VERSION)
+	docker login -u $(REGISTRY_USER) -p $(REGISTRY_PASS) $(REGISTRY)
+	docker push $(REGISTRY)/$(PACKAGE_NAME):$(PACKAGE_VERSION)

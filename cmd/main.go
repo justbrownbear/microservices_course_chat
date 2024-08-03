@@ -21,8 +21,10 @@ func init() {
 func main() {
 	ctx := context.Background()
 
+	// Получаем и валидируем конфиг
 	grpcConfig, postgresqlConfig := getConfig()
 
+	// Инициализируем
 	app.InitApp(ctx, postgresqlConfig)
 	defer app.StopApp()
 

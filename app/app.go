@@ -7,10 +7,11 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/fatih/color"
-	"github.com/jackc/pgx/v5/pgxpool"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
+
+	"github.com/fatih/color"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/justbrownbear/microservices_course_chat/controllers/chat_controller"
 	"github.com/justbrownbear/microservices_course_chat/controllers/user_controller"
@@ -28,7 +29,13 @@ func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig) {
 
 	var err error
 
-	dbDSN := fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=disable", postgresqlConfig.GetPostgresHost(), postgresqlConfig.GetPostgresPort(), postgresqlConfig.GetPostgresDb(), postgresqlConfig.GetPostgresUser(), postgresqlConfig.GetPostgresPassword())
+	dbDSN :=
+		fmt.Sprintf("host=%s port=%d dbname=%s user=%s password=%s sslmode=disable",
+			postgresqlConfig.GetPostgresHost(),
+			postgresqlConfig.GetPostgresPort(),
+			postgresqlConfig.GetPostgresDb(),
+			postgresqlConfig.GetPostgresUser(),
+			postgresqlConfig.GetPostgresPassword())
 	dbPool, err = pgxpool.New(ctx, dbDSN)
 	if err != nil {
 		log.Fatalf("Unable to connect to database: %v\n", err)
@@ -41,7 +48,11 @@ func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig) {
 }
 
 // StartApp starts the gRPC server on the provided port.
-func StartApp(grpcProtocol string, grpcHost string, grpcPort uint16) error {
+func StartApp(
+	grpcProtocol string,
+	grpcHost string,
+	grpcPort uint16,
+) error {
 	listenAddress := grpcHost + ":" + strconv.Itoa(int(grpcPort))
 	listener, err := net.Listen(grpcProtocol, listenAddress)
 	if err != nil {
@@ -62,6 +73,10 @@ func StartApp(grpcProtocol string, grpcHost string, grpcPort uint16) error {
 
 // StopApp - Остановка приложения
 func StopApp() {
+	log.Println(color.YellowString("Stopping the application right way..."))
+
 	grpcServer.Stop()
 	dbPool.Close()
+
+	log.Println(color.GreenString("Application stopped successfully. Bye."))
 }
