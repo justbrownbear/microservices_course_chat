@@ -72,7 +72,7 @@ jobs:
           run: go test -v ./...
 
         - name: Checkout develop
-          run: actions/checkout@v3
+          uses: actions/checkout@v4
 
         - name: Login to Docker Registry
           run: docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
