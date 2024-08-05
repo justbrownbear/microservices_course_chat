@@ -87,6 +87,12 @@ jobs:
   deploy-image:
     runs-on: ubuntu-latest
     # needs: build-test-and-push
+    env:
+      REGISTRY: "cr.selcloud.ru/docker-registry"
+      IMAGE_NAME: "chat"
+      CONTAINER_NAME: "chat"
+      APP_FOLDER: "/root/chat"
+
     steps:
       - name: Checkout branch
         uses: actions/checkout@v4
