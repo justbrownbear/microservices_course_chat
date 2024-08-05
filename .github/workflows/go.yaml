@@ -102,16 +102,8 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-
       - name: Create target directory on server
         run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} "mkdir -p $APP_FOLDER"
-
-      - name: Create target directory on server
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            echo "*** mkdir -p ${APP_FOLDER} _ ${CONTAINER_NAME} _ $REGISTRY"
-            mkdir -p ${APP_FOLDER}
-            EOF
 
       - name: Copy docker-compose.yaml to server
         run: scp -o StrictHostKeyChecking=no docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:$APP_FOLDER
