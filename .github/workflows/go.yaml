@@ -99,7 +99,8 @@ jobs:
       - name: Create target directory on server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            echo "mkdir -p $APP_FOLDER"
+            echo "*** mkdir -p $APP_FOLDER"
+            env
             mkdir -p $APP_FOLDER
             EOF
 
