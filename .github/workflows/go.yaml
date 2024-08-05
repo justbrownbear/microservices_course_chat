@@ -92,6 +92,7 @@ jobs:
       IMAGE_NAME: "chat"
       CONTAINER_NAME: "chat"
       APP_FOLDER: "/root/chat"
+      MIGRATION_CONTAINER_FOLDER: "/root/chat/migration_container"
 
     steps:
       - name: Checkout branch
@@ -102,11 +103,17 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_KEY }}
 
-      - name: Create target directory on server
-        run: ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} "mkdir -p $APP_FOLDER"
+      - name: Create directories on the server
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} "mkdir -p $APP_FOLDER"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} "mkdir -p $MIGRATION_CONTAINER_FOLDER"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} "mkdir -p $APP_FOLDER/migrations"
 
       - name: Copy docker-compose.yaml to server
-        run: scp -o StrictHostKeyChecking=no docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:$APP_FOLDER
+        run: |
+          scp -o StrictHostKeyChecking=no docker-compose.yaml ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:$APP_FOLDER
+          scp -o StrictHostKeyChecking=no -r ./migration_container ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:$MIGRATION_CONTAINER_FOLDER
+          scp -o StrictHostKeyChecking=no -r ./migrations ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }}:$APP_FOLDER/migrations
 
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.0.0
