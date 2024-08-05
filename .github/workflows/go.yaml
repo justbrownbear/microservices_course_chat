@@ -99,7 +99,7 @@ jobs:
       - name: Create target directory on server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            echo "*** mkdir -p ${APP_FOLDER} $CONTAINER_NAME $REGISTRY"
+            echo "*** mkdir -p ${APP_FOLDER} _ ${CONTAINER_NAME} _ $REGISTRY"
             mkdir -p ${APP_FOLDER}
             EOF
 
