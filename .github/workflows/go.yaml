@@ -118,8 +118,6 @@ jobs:
           script: |
             # Set up variables
             TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-            echo "TAG_NAME=$TAG_NAME"
-            echo "GITHUB_SHA=$GITHUB_SHA"
 
             # Login into Selectel Registry
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
@@ -135,6 +133,7 @@ jobs:
             echo "GRPC_PROTOCOL=${{ secrets.GRPC_PROTOCOL }}" >> .env
             echo "GRPC_HOST=${{ secrets.GRPC_HOST }}" >> .env
             echo "GRPC_PORT=${{ secrets.GRPC_PORT }}" >> .env
+            echo "TAG_NAME=$TAG_NAME" >> .env
 
             # Run a new container from a new image
             docker compose -f ./docker-compose.yaml up -d
