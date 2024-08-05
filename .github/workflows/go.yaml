@@ -100,7 +100,7 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
             echo "*** mkdir -p $APP_FOLDER"
-            env
+            echo '*** mkdir -p $APP_FOLDER'
             mkdir -p $APP_FOLDER
             EOF
 
