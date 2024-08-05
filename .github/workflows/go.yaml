@@ -124,6 +124,7 @@ jobs:
             docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
 
             # Make a configuration file
+            cd $APP_FOLDER
             touch .env
             echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
             echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
@@ -136,28 +137,3 @@ jobs:
 
             # Run a new container from a new image
             docker compose -f ./docker-compose.yaml up -d
-
-      - name: Deploy to server2
-        run: |
-          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            # Set up variables
-            TAG_NAME=$(echo $GITHUB_SHA | head -c7)
-
-            # Login into Selectel Registry
-            echo Login to registry $REGISTRY
-            docker login -u ${{ secrets.REGISTRY_USERNAME }} -p ${{ secrets.REGISTRY_PASSWORD }} $REGISTRY
-
-            # Make a configuration file
-            touch .env
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" > .env
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env
-            echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env
-            echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env
-            echo "GRPC_PROTOCOL=${{ secrets.GRPC_PROTOCOL }}" >> .env
-            echo "GRPC_HOST=${{ secrets.GRPC_HOST }}" >> .env
-            echo "GRPC_PORT=${{ secrets.GRPC_PORT }}" >> .env
-
-            # Run a new container from a new image
-            docker compose -f ./docker-compose.yaml up -d
-          EOF
