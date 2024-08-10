@@ -24,15 +24,19 @@ func main() {
 	ctx := context.Background()
 
 	// Получаем и валидируем конфиг
-	grpcConfig, postgresqlConfig := getConfig()
+	grpcConfig, postgresqlConfig, err := getConfig()
+	if err != nil {
+		log.Printf(color.RedString("Failed to get config: %v"), err)
+		os.Exit(1)
+	}
 
 	// Инициализируем
-	app.InitApp(ctx, postgresqlConfig)
+	err = app.InitApp(ctx, postgresqlConfig, grpcConfig)
+	if err != nil {
+		log.Printf(color.RedString("Failed to init app: %v"), err)
+		os.Exit(1)
+	}
 	defer app.StopApp()
-
-	gRPCProtocol := grpcConfig.GetGrpcProtocol()
-	gRPCHost := grpcConfig.GetGrpcHost()
-	gRPCPort := grpcConfig.GetGrpcPort()
 
 	// Создаем канал в котором будем ловить сигналы ОС
 	stopChannel := make(chan os.Signal, 1)
@@ -42,12 +46,12 @@ func main() {
 
 	// Чтобы не блокировать основной поток, запускаем сервер в горутине
 	go func() {
-		err := app.StartApp(gRPCProtocol, gRPCHost, gRPCPort)
+		err := app.StartApp()
 		if err != nil {
-			log.Println(color.RedString("Failed to start app: %v", err))
-			// Отправляем SIGTERM в канал, чтобы корректно завершить приложение и закрыть ресурсы
-			stopChannel <- syscall.SIGTERM
+			log.Println(color.RedString("Failed to start app: %v"), err)
 		}
+		// Отправляем SIGTERM в канал, чтобы корректно завершить приложение и закрыть ресурсы
+		stopChannel <- syscall.SIGTERM
 	}()
 
 	// Как я понимаю, тут мы застрянем до тех пор, пока не придет сигнал
@@ -57,29 +61,33 @@ func main() {
 	log.Println( "Shutting down app..." )
 }
 
-func getConfig() (config.GRPCConfig, config.PostgresqlConfig) {
+func getConfig() (config.GRPCConfig, config.PostgresqlConfig, error) {
 	flag.Parse()
 
 	currentDir, err := os.Getwd()
-	if err != nil {
-		log.Fatalf(color.RedString("Failed to get current directory: %v", err))
+	if err == nil {
+		log.Printf(color.RedString("Failed to get current directory: %v"), err)
+		return nil, nil, err
 	}
 	log.Println("Current Directory:", currentDir)
 
 	err = config.Load(configPath)
 	if err != nil {
-		log.Fatalf(color.RedString("Failed to load config: %v", err))
+		log.Printf(color.RedString("Failed to load config: %v"), err)
+		return nil, nil, err
 	}
 
 	grpcConfig, err := config.GetGrpcConfig()
 	if err != nil {
-		log.Fatalf(color.RedString("Failed to get gRPC config: %v", err))
+		log.Printf(color.RedString("Failed to get gRPC config: %v"), err)
+		return nil, nil, err
 	}
 
 	postgresqlConfig, err := config.GetPostgresqlConfig()
 	if err != nil {
-		log.Fatalf(color.RedString("Failed to get PostgreSQL config: %v", err))
+		log.Printf(color.RedString("Failed to get PostgreSQL config: %v"), err)
+		return nil, nil, err
 	}
 
-	return grpcConfig, postgresqlConfig
+	return grpcConfig, postgresqlConfig, nil
 }

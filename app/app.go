@@ -22,8 +22,12 @@ import (
 var dbPool *pgxpool.Pool
 var grpcServer *grpc.Server
 
+var grpcConfig config.GRPCConfig
+
+
 // InitApp initializes the gRPC server and registers the chat controller.
-func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig) {
+func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig, grpcConfigInstance config.GRPCConfig) error {
+	grpcConfig = grpcConfigInstance
 	grpcServer = grpc.NewServer()
 	reflection.Register(grpcServer)
 
@@ -38,21 +42,24 @@ func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig) {
 			postgresqlConfig.GetPostgresPassword())
 	dbPool, err = pgxpool.New(ctx, dbDSN)
 	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
+		log.Printf(color.RedString("Unable to connect to database: %v\n"), err)
+		return err
 	}
 
 	grpcAPI := grpc_api.InitGrpcAPI(dbPool)
 
 	chat_controller.InitChatController(grpcServer, grpcAPI)
 	user_controller.InitUserController(grpcServer, grpcAPI)
+
+	return nil
 }
 
 // StartApp starts the gRPC server on the provided port.
-func StartApp(
-	grpcProtocol string,
-	grpcHost string,
-	grpcPort uint16,
-) error {
+func StartApp() error {
+	grpcProtocol := grpcConfig.GetGrpcProtocol()
+	grpcHost := grpcConfig.GetGrpcHost()
+	grpcPort := grpcConfig.GetGrpcPort()
+
 	listenAddress := net.JoinHostPort(grpcHost, strconv.Itoa(int(grpcPort)))
 	listener, err := net.Listen(grpcProtocol, listenAddress)
 	if err != nil {
