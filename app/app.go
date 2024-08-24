@@ -24,7 +24,6 @@ var grpcServer *grpc.Server
 
 var grpcConfig config.GRPCConfig
 
-
 // InitApp initializes the gRPC server and registers the chat controller.
 func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig, grpcConfigInstance config.GRPCConfig) error {
 	grpcConfig = grpcConfigInstance

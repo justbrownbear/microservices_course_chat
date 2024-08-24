@@ -58,7 +58,7 @@ func main() {
 	<-stopChannel
 
 	// А дальше отработает defer
-	log.Println( "Shutting down app..." )
+	log.Println("Shutting down app...")
 }
 
 func getConfig() (config.GRPCConfig, config.PostgresqlConfig, error) {

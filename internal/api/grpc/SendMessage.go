@@ -11,13 +11,13 @@ import (
 
 func (grpcApiInstance *grpcAPI) SendMessage(ctx context.Context, in *chat_service.SendMessageRequest) error {
 	// Инициализируем соединение
-	transaction, err := grpcApiInstance.dbConnection.BeginTx(ctx, pgx.TxOptions{})
+	transaction, err := grpcApiInstance.dbPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
 
 	// Инициализируем сервис-провайдер
-	serviceProvider := service_provider.NewWithTransaction(&transaction)
+	serviceProvider := getServiceProvider(&transaction)
 
 	// Выполняем бизнес-логику
 	err = sendMessageHandler(ctx, serviceProvider, in)

@@ -7,7 +7,10 @@ import (
 
 	chat_service "github.com/justbrownbear/microservices_course_chat/internal/service/chat"
 	user_service "github.com/justbrownbear/microservices_course_chat/internal/service/user"
+	"github.com/justbrownbear/microservices_course_chat/internal/service_provider"
 )
+
+var getServiceProvider = service_provider.NewWithTransaction
 
 // GrpcAPI - Интерфейс gRPC API
 type GrpcAPI interface {
@@ -27,12 +30,14 @@ type GrpcAPI interface {
 }
 
 type grpcAPI struct {
-	dbConnection *pgxpool.Pool
+	dbPool *pgxpool.Pool
+
+	// chatService chat_service.ChatService
 }
 
 // InitGrpcAPI инициализирует gRPC API
 func InitGrpcAPI(dbPool *pgxpool.Pool) GrpcAPI {
 	return &grpcAPI{
-		dbConnection: dbPool,
+		dbPool: dbPool,
 	}
 }

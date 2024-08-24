@@ -10,13 +10,13 @@ import (
 
 func (grpcApiInstance *grpcAPI) DeleteChat(ctx context.Context, chatID uint64) error {
 	// Инициализируем соединение
-	transaction, err := grpcApiInstance.dbConnection.BeginTx(ctx, pgx.TxOptions{})
+	transaction, err := grpcApiInstance.dbPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
 	}
 
 	// Инициализируем сервис-провайдер
-	serviceProvider := service_provider.NewWithTransaction(&transaction)
+	serviceProvider := getServiceProvider(&transaction)
 
 	// Выполняем бизнес-логику
 	err = deleteChatHandler(ctx, serviceProvider, chatID)

@@ -17,6 +17,7 @@ install-deps:
 	GOBIN=$(LOCAL_BIN) go install github.com/pressly/goose/v3/cmd/goose@v3.14.0
 	GOBIN=$(LOCAL_BIN) go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.26
 	GOBIN=$(LOCAL_BIN) go install golang.org/x/tools/cmd/goimports@latest
+	GOBIN=$(LOCAL_BIN) go install github.com/gojuno/minimock/v3/cmd/minimock@latest
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
@@ -25,6 +26,7 @@ get-deps:
 	go get -u google.golang.org/grpc/reflection
 	go get -u github.com/jackc/pgx/v5
 	go get -u github.com/jackc/pgx/v5/pgxpool
+	go get -u github.com/gojuno/minimock
 
 install-golangci-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
