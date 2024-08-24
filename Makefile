@@ -83,3 +83,8 @@ docker-build-and-push:
 
 dev-env:
 	docker run -d --rm --name chat-postgres -e POSTGRES_USER=$(POSTGRES_USER) -e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) -e POSTGRES_DB=$(POSTGRES_DB) -p 5432:5432 -d postgres
+
+.PHONY: test
+test:
+	go clean -testcache
+	go test ./... -covermode count -count 5

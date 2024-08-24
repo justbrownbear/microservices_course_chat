@@ -19,7 +19,7 @@ func (instance *grpcAPI) SendMessage(
 			chatService := serviceProvider.GetChatService()
 
 			// ...Передать их функции, которая на входе принимает только используемые сервисы и in
-			err := sendMessageHandler(ctx, chatService, in)
+			err := sendMessage(ctx, chatService, in)
 			if err != nil {
 				return err
 			}
@@ -34,7 +34,7 @@ func (instance *grpcAPI) SendMessage(
 }
 
 
-func sendMessageHandler(
+func sendMessage(
 	ctx context.Context,
 	chatService chat_service.ChatService,
 	in *chat_service.SendMessageRequest,
