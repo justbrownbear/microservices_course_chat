@@ -41,7 +41,7 @@ goose-migration-status:
 	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" status -v
 
 goose-migration-up:
-	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" up -v
+	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "host=$(POSTGRES_HOST) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" up -v
 
 goose-migration-down:
 	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" down -v
@@ -76,3 +76,6 @@ docker-build-and-push:
 	docker buildx build --no-cache --platform linux/amd64 -t $(REGISTRY)/$(PACKAGE_NAME):$(PACKAGE_VERSION) .
 	docker login -u $(REGISTRY_USER) -p $(REGISTRY_PASS) $(REGISTRY)
 	docker push $(REGISTRY)/$(PACKAGE_NAME):$(PACKAGE_VERSION)
+
+dev-env:
+	docker run -d --rm --name chat-postgres -e POSTGRES_USER=$(POSTGRES_USER) -e POSTGRES_PASSWORD=$(POSTGRES_PASSWORD) -e POSTGRES_DB=$(POSTGRES_DB) -p 5432:5432 -d postgres

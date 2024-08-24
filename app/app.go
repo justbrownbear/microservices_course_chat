@@ -14,9 +14,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/justbrownbear/microservices_course_chat/controllers/chat_controller"
-	"github.com/justbrownbear/microservices_course_chat/controllers/user_controller"
 	grpc_api "github.com/justbrownbear/microservices_course_chat/internal/api/grpc"
 	"github.com/justbrownbear/microservices_course_chat/internal/config"
+	pg "github.com/justbrownbear/microservices_course_chat/internal/transaction_manager"
 )
 
 var dbPool *pgxpool.Pool
@@ -45,10 +45,10 @@ func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig, grpc
 		return err
 	}
 
-	grpcAPI := grpc_api.InitGrpcAPI(dbPool)
+	transactionManager := pg.InitTransactionManager(dbPool)
+	grpcAPI := grpc_api.InitGrpcAPI(transactionManager)
 
 	chat_controller.InitChatController(grpcServer, grpcAPI)
-	user_controller.InitUserController(grpcServer, grpcAPI)
 
 	return nil
 }

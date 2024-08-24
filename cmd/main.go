@@ -65,7 +65,7 @@ func getConfig() (config.GRPCConfig, config.PostgresqlConfig, error) {
 	flag.Parse()
 
 	currentDir, err := os.Getwd()
-	if err == nil {
+	if err != nil {
 		log.Printf(color.RedString("Failed to get current directory: %v"), err)
 		return nil, nil, err
 	}

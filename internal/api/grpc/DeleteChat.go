@@ -3,40 +3,39 @@ package grpc_api
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5"
-
+	chat_service "github.com/justbrownbear/microservices_course_chat/internal/service/chat"
 	"github.com/justbrownbear/microservices_course_chat/internal/service_provider"
 )
 
-func (grpcApiInstance *grpcAPI) DeleteChat(ctx context.Context, chatID uint64) error {
-	// Инициализируем соединение
-	transaction, err := grpcApiInstance.dbPool.BeginTx(ctx, pgx.TxOptions{})
+
+func (instance *grpcAPI) DeleteChat(ctx context.Context, chatID uint64) error {
+	err := instance.txManager.WithTransaction( ctx,
+		func ( ctx context.Context, serviceProvider service_provider.ServiceProvider ) error {
+			// В этом месте нам пришел сервис-провайдер, который уже имеет connection внутри себя
+			// Нам осталось только получить нужные сервисы, и...
+			chatService := serviceProvider.GetChatService()
+
+			// ...Передать их функции, которая на входе принимает только используемые сервисы и in
+			err := deleteChat( ctx, chatService, chatID )
+			if err != nil {
+				return err
+			}
+
+			return nil
+		} )
 	if err != nil {
 		return err
 	}
 
-	// Инициализируем сервис-провайдер
-	serviceProvider := getServiceProvider(&transaction)
-
-	// Выполняем бизнес-логику
-	err = deleteChatHandler(ctx, serviceProvider, chatID)
-	if err != nil {
-		// nolint:errcheck
-		transaction.Rollback(ctx)
-		return err
-	}
-
-	err = transaction.Commit(ctx)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return nil;
 }
 
-func deleteChatHandler(ctx context.Context, serviceProvider service_provider.ServiceProvider, chatID uint64) error {
-	chatService := serviceProvider.GetChatService()
 
+func deleteChat(
+	ctx context.Context,
+	chatService chat_service.ChatService,
+	chatID uint64,
+) error {
 	err := chatService.DeleteChat(ctx, chatID)
 	if err != nil {
 		return err
