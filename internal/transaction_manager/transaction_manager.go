@@ -16,7 +16,10 @@ type Handler func(ctx context.Context, serviceProvider service_provider.ServiceP
 
 
 type TxManager interface {
-	WithTransaction(ctx context.Context, fn Handler) error
+	// Выполнение handler в контексте подключения без транзакции
+	// WithConnection(ctx context.Context, handler Handler) error
+	// Выполнение handler в контексте подключения с транзакцией
+	WithTransaction(ctx context.Context, handler Handler) error
 }
 
 
@@ -38,7 +41,7 @@ func InitTransactionManager(dbPool *pgxpool.Pool) TxManager {
 // Разумеется, это будет лежать в оригинале в другом package
 func (instance *resources) WithTransaction(
 	ctx context.Context,
-	fn Handler,
+	handler Handler,
 ) error {
 	// Инициализируем соединение
 	transaction, err := instance.dbPool.BeginTx(ctx, pgx.TxOptions{IsoLevel: pgx.ReadCommitted})
@@ -71,7 +74,7 @@ func (instance *resources) WithTransaction(
 	// serviceProvider := getServiceProviderWithConnection(&connection)
 
 	// Выполняем бизнес-логику
-	err = fn( ctx, serviceProvider )
+	err = handler( ctx, serviceProvider )
 	if err != nil {
 		err = errors.Wrap(err, "failed executing code inside transaction")
 	}

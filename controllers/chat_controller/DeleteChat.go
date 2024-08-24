@@ -12,8 +12,6 @@ import (
 // ***************************************************************************************************
 // ***************************************************************************************************
 func (chatControllerInstance *controller) DeleteChat(ctx context.Context, req *chat_v1.DeleteChatRequest) (*emptypb.Empty, error) {
-	log.Printf("Delete request fired: %v", req.String())
-
 	err := chatControllerInstance.grpcAPI.DeleteChat(ctx, req.ChatId)
 	if err != nil {
 		log.Printf("%v", err)

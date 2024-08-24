@@ -11,8 +11,6 @@ import (
 // ***************************************************************************************************
 // ***************************************************************************************************
 func (chatControllerInstance *controller) CreateChat(ctx context.Context, req *chat_v1.CreateChatRequest) (*chat_v1.CreateChatResponse, error) {
-	log.Printf("Create request fired: %v", req.String())
-
 	payload := &chat_service.CreateChatRequest{
 		UserID:   req.GetUserId(),
 		ChatName: req.GetChatName(),

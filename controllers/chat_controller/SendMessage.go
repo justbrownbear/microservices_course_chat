@@ -13,8 +13,6 @@ import (
 // ***************************************************************************************************
 // ***************************************************************************************************
 func (chatControllerInstance *controller) SendMessage(ctx context.Context, req *chat_v1.SendMessageRequest) (*emptypb.Empty, error) {
-	log.Printf("SendMessage request fired: %v", req.String())
-
 	payload := &chat_service.SendMessageRequest{
 		ChatID:  req.ChatId,
 		UserID:  req.UserId,

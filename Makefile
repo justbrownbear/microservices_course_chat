@@ -27,6 +27,10 @@ get-deps:
 	go get -u github.com/jackc/pgx/v5
 	go get -u github.com/jackc/pgx/v5/pgxpool
 	go get -u github.com/gojuno/minimock
+	go get -u github.com/gojuno/minimock/v3
+	go get -u github.com/brianvoe/gofakeit
+	go get -u github.com/brianvoe/gofakeit/v6
+	go get -u github.com/stretchr/testify/require
 
 install-golangci-lint:
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
