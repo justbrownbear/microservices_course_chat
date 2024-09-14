@@ -34,7 +34,6 @@ func NewWithTransaction(dbTransaction *pgx.Tx) ServiceProvider {
 	}
 }
 
-
 func (serviceProviderInstance *serviceProvider) getChatRepository() chat_repository.ChatRepository {
 	if serviceProviderInstance.chatRepository == nil {
 		serviceProviderInstance.chatRepository = chat_repository.New(serviceProviderInstance.dbConnection)

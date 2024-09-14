@@ -50,5 +50,4 @@ COMMENT ON TABLE public.messages
 -- +goose StatementBegin
 DROP TABLE IF EXISTS public.messages;
 DROP TABLE IF EXISTS public.chats;
-DROP TABLE IF EXISTS public.users;
 -- +goose StatementEnd

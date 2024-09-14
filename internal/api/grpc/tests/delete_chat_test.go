@@ -21,36 +21,32 @@ func TestDeleteChat(test *testing.T) {
 
 	// Создаем структуру входных параметров
 	type args struct {
-		ctx context.Context
+		ctx    context.Context
 		chatID uint64
 	}
 
 	mc := minimock.NewController(test)
-	defer test.Cleanup(mc.Finish)
 
 	// Делаем залипухи
-	ctx			:= context.Background()
-	chatID		:= gofakeit.Uint64()
+	ctx := context.Background()
+	chatID := gofakeit.Uint64()
 	serviceError := fmt.Errorf("service error")
-
-	// Объявим тип для функции, которая будет возвращать моки сервисов
-	type grpcAPIMockFunction func(mc *minimock.Controller) grpc_api.GrpcAPI
 
 	// Создаем набор тестовых кейсов
 	tests := []struct {
-		name			string
-		args			args
-		err				error
-		serviceMock		grpcAPIMockFunction
+		name string
+		args args
+		err  error
+		mock func(mc *minimock.Controller) grpc_api.GrpcAPI
 	}{
 		{
 			name: "success case",
 			args: args{
-				ctx: ctx,
+				ctx:    ctx,
 				chatID: chatID,
 			},
 			err: nil,
-			serviceMock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
+			mock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
 				// Делаем мок TxManager
 				txManagerMock := transaction_manager_mock.NewTxManagerMock(mc)
 				txManagerMock.WithTransactionMock.Set(
@@ -72,11 +68,11 @@ func TestDeleteChat(test *testing.T) {
 		{
 			name: "chatService.DeleteChat() fail case",
 			args: args{
-				ctx: ctx,
+				ctx:    ctx,
 				chatID: chatID,
 			},
 			err: serviceError,
-			serviceMock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
+			mock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
 				// Делаем мок TxManager
 				txManagerMock := transaction_manager_mock.NewTxManagerMock(mc)
 				txManagerMock.WithTransactionMock.Set(
@@ -100,9 +96,9 @@ func TestDeleteChat(test *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		test.Run(tt.name, func(t *testing.T) {
-			grpcAPIMock := tt.serviceMock(mc)
+			grpcAPIMock := tt.mock(mc)
 
-			err := grpcAPIMock.DeleteChat(tt.args.ctx, tt.args.chatID);
+			err := grpcAPIMock.DeleteChat(tt.args.ctx, tt.args.chatID)
 			require.Equal(t, tt.err, err)
 		})
 	}

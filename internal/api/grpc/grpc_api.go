@@ -18,11 +18,9 @@ type GrpcAPI interface {
 	SendMessage(ctx context.Context, in *chat_service.SendMessageRequest) error
 }
 
-
 type grpcAPI struct {
 	txManager pg.TxManager
 }
-
 
 // InitGrpcAPI инициализирует gRPC API
 func InitGrpcAPI(txManager pg.TxManager) GrpcAPI {

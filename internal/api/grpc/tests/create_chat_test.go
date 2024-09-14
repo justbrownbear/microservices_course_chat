@@ -23,44 +23,40 @@ func TestCreateChat(test *testing.T) {
 	// Создаем структуру входных параметров
 	type args struct {
 		ctx context.Context
-		in *chat_service.CreateChatRequest
+		in  *chat_service.CreateChatRequest
 	}
 
 	mc := minimock.NewController(test)
-	defer test.Cleanup(mc.Finish)
 
 	// Делаем залипухи
-	ctx			:= context.Background()
-	chatID		:= gofakeit.Uint64()
-	userID		:= gofakeit.Uint64()
-	chatName	:= gofakeit.BeerName()
-	request		:= &chat_service.CreateChatRequest{
+	ctx := context.Background()
+	chatID := gofakeit.Uint64()
+	userID := gofakeit.Uint64()
+	chatName := gofakeit.BeerName()
+	request := &chat_service.CreateChatRequest{
 		UserID:   userID,
 		ChatName: chatName,
 	}
-	response	:= chatID
+	response := chatID
 	serviceError := fmt.Errorf("service error")
-
-	// Объявим тип для функции, которая будет возвращать моки сервисов
-	type grpcAPIMockFunction func(mc *minimock.Controller) grpc_api.GrpcAPI
 
 	// Создаем набор тестовых кейсов
 	tests := []struct {
-		name			string
-		args			args
-		want			uint64
-		err				error
-		serviceMock	grpcAPIMockFunction
+		name string
+		args args
+		want uint64
+		err  error
+		mock func(mc *minimock.Controller) grpc_api.GrpcAPI
 	}{
 		{
 			name: "success case",
 			args: args{
 				ctx: ctx,
-				in: request,
+				in:  request,
 			},
 			want: response,
-			err: nil,
-			serviceMock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
+			err:  nil,
+			mock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
 				// Делаем мок TxManager
 				txManagerMock := transaction_manager_mock.NewTxManagerMock(mc)
 				txManagerMock.WithTransactionMock.Set(
@@ -83,11 +79,11 @@ func TestCreateChat(test *testing.T) {
 			name: "chatService.CreateChat() fail case",
 			args: args{
 				ctx: ctx,
-				in: request,
+				in:  request,
 			},
 			want: 0,
-			err: serviceError,
-			serviceMock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
+			err:  serviceError,
+			mock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
 				// Делаем мок TxManager
 				txManagerMock := transaction_manager_mock.NewTxManagerMock(mc)
 				txManagerMock.WithTransactionMock.Set(
@@ -111,9 +107,9 @@ func TestCreateChat(test *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		test.Run(tt.name, func(t *testing.T) {
-			grpcAPIMock := tt.serviceMock(mc)
+			grpcAPIMock := tt.mock(mc)
 
-			chatID, err := grpcAPIMock.CreateChat(tt.args.ctx, tt.args.in);
+			chatID, err := grpcAPIMock.CreateChat(tt.args.ctx, tt.args.in)
 			require.Equal(t, tt.err, err)
 			require.Equal(t, tt.want, chatID)
 		})

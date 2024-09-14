@@ -23,42 +23,38 @@ func TestSendMessage(test *testing.T) {
 	// Создаем структуру входных параметров
 	type args struct {
 		ctx context.Context
-		in *chat_service.SendMessageRequest
+		in  *chat_service.SendMessageRequest
 	}
 
 	mc := minimock.NewController(test)
-	defer test.Cleanup(mc.Finish)
 
 	// Делаем залипухи
-	ctx				:= context.Background()
-	chatID			:= gofakeit.Uint64()
-	userID			:= gofakeit.Uint64()
-	message			:= gofakeit.BeerName()
-	request			:= &chat_service.SendMessageRequest{
-		ChatID: chatID,
-		UserID: userID,
+	ctx := context.Background()
+	chatID := gofakeit.Uint64()
+	userID := gofakeit.Uint64()
+	message := gofakeit.BeerName()
+	request := &chat_service.SendMessageRequest{
+		ChatID:  chatID,
+		UserID:  userID,
 		Message: message,
 	}
-	serviceError	:= fmt.Errorf("service error")
-
-	// Объявим тип для функции, которая будет возвращать моки сервисов
-	type grpcAPIMockFunction func(mc *minimock.Controller) grpc_api.GrpcAPI
+	serviceError := fmt.Errorf("service error")
 
 	// Создаем набор тестовых кейсов
 	tests := []struct {
-		name			string
-		args			args
-		err				error
-		serviceMock		grpcAPIMockFunction
+		name string
+		args args
+		err  error
+		mock func(mc *minimock.Controller) grpc_api.GrpcAPI
 	}{
 		{
 			name: "success case",
 			args: args{
 				ctx: ctx,
-				in: request,
+				in:  request,
 			},
 			err: nil,
-			serviceMock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
+			mock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
 				// Делаем мок TxManager
 				txManagerMock := transaction_manager_mock.NewTxManagerMock(mc)
 				txManagerMock.WithTransactionMock.Set(
@@ -81,10 +77,10 @@ func TestSendMessage(test *testing.T) {
 			name: "chatService.SendMessage() fail case",
 			args: args{
 				ctx: ctx,
-				in: request,
+				in:  request,
 			},
 			err: serviceError,
-			serviceMock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
+			mock: func(mc *minimock.Controller) grpc_api.GrpcAPI {
 				// Делаем мок TxManager
 				txManagerMock := transaction_manager_mock.NewTxManagerMock(mc)
 				txManagerMock.WithTransactionMock.Set(
@@ -108,9 +104,9 @@ func TestSendMessage(test *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		test.Run(tt.name, func(t *testing.T) {
-			grpcAPIMock := tt.serviceMock(mc)
+			grpcAPIMock := tt.mock(mc)
 
-			err := grpcAPIMock.SendMessage(tt.args.ctx, tt.args.in);
+			err := grpcAPIMock.SendMessage(tt.args.ctx, tt.args.in)
 			require.Equal(t, tt.err, err)
 		})
 	}

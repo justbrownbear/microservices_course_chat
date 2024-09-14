@@ -7,13 +7,12 @@ import (
 	"github.com/justbrownbear/microservices_course_chat/internal/service_provider"
 )
 
-
 func (instance *grpcAPI) SendMessage(
 	ctx context.Context,
 	in *chat_service.SendMessageRequest,
 ) error {
-	err := instance.txManager.WithTransaction( ctx,
-		func ( ctx context.Context, serviceProvider service_provider.ServiceProvider ) error {
+	err := instance.txManager.WithTransaction(ctx,
+		func(ctx context.Context, serviceProvider service_provider.ServiceProvider) error {
 			// В этом месте нам пришел сервис-провайдер, который уже имеет connection внутри себя
 			// Нам осталось только получить нужные сервисы, и...
 			chatService := serviceProvider.GetChatService()
@@ -25,14 +24,13 @@ func (instance *grpcAPI) SendMessage(
 			}
 
 			return nil
-		} )
+		})
 	if err != nil {
 		return err
 	}
 
-	return nil;
+	return nil
 }
-
 
 func sendMessage(
 	ctx context.Context,

@@ -14,6 +14,7 @@ import (
 	"github.com/justbrownbear/microservices_course_chat/internal/config"
 )
 
+// Путь к файлу конфига
 var configPath string
 
 func init() {
@@ -30,7 +31,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Инициализируем
+	// Инициализируем приложение
 	err = app.InitApp(ctx, postgresqlConfig, grpcConfig)
 	if err != nil {
 		log.Printf(color.RedString("Failed to init app: %v"), err)

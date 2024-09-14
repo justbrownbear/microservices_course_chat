@@ -10,7 +10,10 @@ import (
 
 // ***************************************************************************************************
 // ***************************************************************************************************
-func (chatControllerInstance *controller) CreateChat(ctx context.Context, req *chat_v1.CreateChatRequest) (*chat_v1.CreateChatResponse, error) {
+func (chatControllerInstance *controller) CreateChat(
+	ctx context.Context,
+	req *chat_v1.CreateChatRequest,
+) (*chat_v1.CreateChatResponse, error) {
 	payload := &chat_service.CreateChatRequest{
 		UserID:   req.GetUserId(),
 		ChatName: req.GetChatName(),
