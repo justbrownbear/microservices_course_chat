@@ -3,6 +3,7 @@ syntax = "proto3";
 package chat_v1;
 
 import "google/protobuf/empty.proto";
+import "validate/validate.proto";
 
 option go_package = "github.com/justbrownbear/microservices_course_chat/pkg/chat_v1;chat_v1";
 
@@ -17,8 +18,8 @@ service ChatV1 {
 }
 
 message CreateChatRequest {
-	uint64 user_id = 1;
-	string chat_name = 2;
+	uint64 user_id = 1 [(validate.rules).uint64 = {gt: 0}];
+	string chat_name = 2 [(validate.rules).string = {min_len: 1, max_len: 50}];
 }
 
 message CreateChatResponse {
@@ -26,11 +27,11 @@ message CreateChatResponse {
 }
 
 message DeleteChatRequest {
-	uint64 chat_id = 1;
+	uint64 chat_id = 1 [(validate.rules).uint64 = {gt: 0}];
 }
 
 message SendMessageRequest {
-	uint64 user_id = 1;
-	uint64 chat_id = 2;
-	string message = 3;
+	uint64 user_id = 1 [(validate.rules).uint64 = {gt: 0}];
+	uint64 chat_id = 2 [(validate.rules).uint64 = {gt: 0}];
+	string message = 3 [(validate.rules).string = {min_len: 1, max_len: 1024}];
 }

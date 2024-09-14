@@ -6,7 +6,9 @@ toolchain go1.22.7
 
 require (
 	github.com/brianvoe/gofakeit/v6 v6.28.0
+	github.com/envoyproxy/protoc-gen-validate v1.0.4
 	github.com/gojuno/minimock/v3 v3.4.0
+	github.com/golang/protobuf v1.5.0
 	github.com/joho/godotenv v1.5.1
 	github.com/stretchr/testify v1.9.0
 )

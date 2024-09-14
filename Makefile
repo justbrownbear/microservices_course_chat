@@ -19,6 +19,7 @@ install-deps:
 	GOBIN=$(LOCAL_BIN) go install golang.org/x/tools/cmd/goimports@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/gojuno/minimock/v3/cmd/minimock@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
+	GOBIN=$(LOCAL_BIN) go install github.com/envoyproxy/protoc-gen-validate@v1.0.4
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
@@ -39,13 +40,13 @@ lint:
 	$(LOCAL_BIN)/golangci-lint run ./... --config .golangci.pipeline.yaml
 
 goose-migration-status:
-	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" status -v
+	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "host=$(POSTGRES_HOST) port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" status -v
 
 goose-migration-up:
-	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "host=$(POSTGRES_HOST) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" up -v
+	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "host=$(POSTGRES_HOST) port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" up -v
 
 goose-migration-down:
-	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" down -v
+	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "host=$(POSTGRES_HOST) port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" down -v
 
 generate:
 	make generate-chat-api && \
@@ -53,11 +54,15 @@ generate:
 
 generate-chat-api:
 	mkdir -p pkg/chat_v1
-	protoc --proto_path api/chat_v1 \
+	protoc \
+	--proto_path api/chat_v1 \
+	--proto_path vendor.protogen \
 	--go_out=pkg/chat_v1 --go_opt=paths=source_relative \
 	--plugin=protoc-gen-go=bin/protoc-gen-go \
 	--go-grpc_out=pkg/chat_v1 --go-grpc_opt=paths=source_relative \
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
+	--validate_out lang=go:pkg/chat_v1 --validate_opt=paths=source_relative \
+	--plugin=protoc-gen-validate=bin/protoc-gen-validate \
 	api/chat_v1/chat.proto
 
 generate-sqlc:
@@ -75,3 +80,23 @@ dev-env:
 test:
 	go clean -testcache
 	go test ./... -covermode count -count 5
+
+vendor-proto:
+	@if [ ! -d vendor.protogen/validate ]; then \
+		mkdir -p vendor.protogen/validate &&\
+		git clone https://github.com/envoyproxy/protoc-gen-validate vendor.protogen/protoc-gen-validate &&\
+		mv vendor.protogen/protoc-gen-validate/validate/*.proto vendor.protogen/validate &&\
+		rm -rf vendor.protogen/protoc-gen-validate ;\
+	fi
+	@if [ ! -d vendor.protogen/google ]; then \
+		git clone https://github.com/googleapis/googleapis vendor.protogen/googleapis &&\
+		mkdir -p  vendor.protogen/google/ &&\
+		mv vendor.protogen/googleapis/google/api vendor.protogen/google &&\
+		rm -rf vendor.protogen/googleapis ;\
+	fi
+	@if [ ! -d vendor.protogen/protoc-gen-openapiv2 ]; then \
+		mkdir -p vendor.protogen/protoc-gen-openapiv2/options &&\
+		git clone https://github.com/grpc-ecosystem/grpc-gateway vendor.protogen/openapiv2 &&\
+		mv vendor.protogen/openapiv2/protoc-gen-openapiv2/options/*.proto vendor.protogen/protoc-gen-openapiv2/options &&\
+		rm -rf vendor.protogen/openapiv2 ;\
+	fi

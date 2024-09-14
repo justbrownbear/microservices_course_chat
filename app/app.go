@@ -16,6 +16,7 @@ import (
 	"github.com/justbrownbear/microservices_course_chat/controllers/chat_controller"
 	grpc_api "github.com/justbrownbear/microservices_course_chat/internal/api/grpc"
 	"github.com/justbrownbear/microservices_course_chat/internal/config"
+	"github.com/justbrownbear/microservices_course_chat/internal/interceptor"
 	pg "github.com/justbrownbear/microservices_course_chat/internal/transaction_manager"
 )
 
@@ -27,7 +28,10 @@ var grpcConfig config.GRPCConfig
 // InitApp initializes the gRPC server and registers the chat controller.
 func InitApp(ctx context.Context, postgresqlConfig config.PostgresqlConfig, grpcConfigInstance config.GRPCConfig) error {
 	grpcConfig = grpcConfigInstance
-	grpcServer = grpc.NewServer()
+	grpcServer = grpc.NewServer(
+		// Прописываем интерцептор валидации для всех запросов
+		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
+	)
 	reflection.Register(grpcServer)
 
 	var err error

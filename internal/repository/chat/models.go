@@ -33,13 +33,3 @@ type Message struct {
 	DeleteUserID    pgtype.Int8
 	DeleteTimestamp pgtype.Timestamp
 }
-
-// Пользователи
-type User struct {
-	ID              int64
-	Nickname        string
-	IsDeleted       pgtype.Bool
-	CreateTimestamp pgtype.Timestamp
-	UpdateTimestamp pgtype.Timestamp
-	DeleteTimestamp pgtype.Timestamp
-}
