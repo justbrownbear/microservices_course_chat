@@ -22,6 +22,7 @@ install-deps:
 	GOBIN=$(LOCAL_BIN) go install github.com/envoyproxy/protoc-gen-validate@v1.0.4
 	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.20.0
 	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.20.0
+	GOBIN=$(LOCAL_BIN) go install github.com/rakyll/statik@v0.1.7
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
@@ -37,6 +38,8 @@ get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
 	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
 	go get -u github.com/grpc-ecosystem/grpc-gateway/v2/runtime
+	go get -u github.com/rakyll/statik/fs
+	go get -u github.com/rs/cors
 
 format:
 	find . -name '*.go' -exec $(LOCAL_BIN)/goimports -w {} \;
@@ -54,7 +57,8 @@ goose-migration-down:
 	$(LOCAL_BIN)/goose -dir ${MIGRATION_PATH} postgres "host=$(POSTGRES_HOST) port=$(POSTGRES_PORT) user=$(POSTGRES_USER) password=$(POSTGRES_PASSWORD) dbname=$(POSTGRES_DB) sslmode=disable" down -v
 
 generate:
-	make generate-chat-api && \
+	make generate-swagger
+	make generate-chat-api
 	make generate-sqlc
 
 generate-chat-api:
@@ -70,10 +74,16 @@ generate-chat-api:
 	--plugin=protoc-gen-validate=bin/protoc-gen-validate \
 	--grpc-gateway_out=pkg/chat_v1 --grpc-gateway_opt=paths=source_relative \
 	--plugin=protoc-gen-grpc-gateway=bin/protoc-gen-grpc-gateway \
+	--openapiv2_out=allow_merge=true,merge_file_name=api:pkg/swagger \
+	--plugin=protoc-gen-openapiv2=bin/protoc-gen-openapiv2 \
 	api/chat_v1/chat.proto
 
 generate-sqlc:
 	$(LOCAL_BIN)/sqlc generate
+
+generate-swagger:
+	mkdir -p pkg/swagger
+	$(LOCAL_BIN)/statik -f -src=pkg/swagger/ -include='*.css,*.html,*.js,*.json,*.png'
 
 docker-build-and-push:
 	docker buildx build --no-cache --platform linux/amd64 -t $(REGISTRY)/$(PACKAGE_NAME):$(PACKAGE_VERSION) .

@@ -5,8 +5,27 @@ package chat_v1;
 import "google/protobuf/empty.proto";
 import "validate/validate.proto";
 import "google/api/annotations.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
 
 option go_package = "github.com/justbrownbear/microservices_course_chat/pkg/chat_v1;chat_v1";
+
+option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
+	info: {
+		title: "Microservice like bigtech chat API"
+		version: "1.0.0"
+		contact: {
+			name: "Kirill Bastrikov"
+			email: "380929@gmail.com"
+		};
+	};
+
+	host: "localhost:8080",
+	schemes: HTTP,
+	schemes: HTTPS,
+	consumes: "application/json",
+	produces: "application/json",
+  };
+
 
 
 service ChatV1 {
@@ -41,20 +60,27 @@ service ChatV1 {
 }
 
 message CreateChatRequest {
+	// ID пользователя
 	uint64 user_id = 1 [(validate.rules).uint64 = {gt: 0}];
+	// Название чата
 	string chat_name = 2 [(validate.rules).string = {min_len: 1, max_len: 50}];
 }
 
 message CreateChatResponse {
+	// ID чата
 	uint64 id = 1;
 }
 
 message DeleteChatRequest {
+	// ID чата
 	uint64 chat_id = 1 [(validate.rules).uint64 = {gt: 0}];
 }
 
 message SendMessageRequest {
+	// ID пользователя
 	uint64 user_id = 1 [(validate.rules).uint64 = {gt: 0}];
+	// ID чата
 	uint64 chat_id = 2 [(validate.rules).uint64 = {gt: 0}];
+	// Сообщение
 	string message = 3 [(validate.rules).string = {min_len: 1, max_len: 1024}];
 }
