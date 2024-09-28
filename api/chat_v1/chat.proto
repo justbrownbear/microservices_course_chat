@@ -4,17 +4,40 @@ package chat_v1;
 
 import "google/protobuf/empty.proto";
 import "validate/validate.proto";
+import "google/api/annotations.proto";
 
 option go_package = "github.com/justbrownbear/microservices_course_chat/pkg/chat_v1;chat_v1";
 
 
 service ChatV1 {
 	// Создание чата
-	rpc CreateChat(CreateChatRequest) returns (CreateChatResponse);
+	rpc CreateChat(CreateChatRequest) returns (CreateChatResponse)
+	{
+		option (google.api.http) =
+		{
+			post: "/api/v1/create_chat"
+			body: "*"
+		};
+	};
 	// Удаление чата
-	rpc DeleteChat(DeleteChatRequest) returns (google.protobuf.Empty);
+	rpc DeleteChat(DeleteChatRequest) returns (google.protobuf.Empty)
+	{
+		option (google.api.http) =
+		{
+			// Не люблю использовать DELETE, предпочитаю POST везде
+			post: "/api/v1/delete_chat"
+			body: "*"
+		};
+	};
 	// Отправка сообщения
-	rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty);
+	rpc SendMessage(SendMessageRequest) returns (google.protobuf.Empty)
+	{
+		option (google.api.http) =
+		{
+			post: "/api/v1/send_message"
+			body: "*"
+		};
+	};
 }
 
 message CreateChatRequest {

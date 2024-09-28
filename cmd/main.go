@@ -25,14 +25,14 @@ func main() {
 	ctx := context.Background()
 
 	// Получаем и валидируем конфиг
-	grpcConfig, postgresqlConfig, err := getConfig()
+	grpcConfig, postgresqlConfig, httpConfig, err := getConfig()
 	if err != nil {
 		log.Printf(color.RedString("Failed to get config: %v"), err)
 		os.Exit(1)
 	}
 
 	// Инициализируем приложение
-	err = app.InitApp(ctx, postgresqlConfig, grpcConfig)
+	err = app.InitApp(ctx, postgresqlConfig, grpcConfig, httpConfig)
 	if err != nil {
 		log.Printf(color.RedString("Failed to init app: %v"), err)
 		os.Exit(1)
@@ -62,33 +62,39 @@ func main() {
 	log.Println("Shutting down app...")
 }
 
-func getConfig() (config.GRPCConfig, config.PostgresqlConfig, error) {
+func getConfig() (config.GRPCConfig, config.PostgresqlConfig, config.HttpConfig, error) {
 	flag.Parse()
 
 	currentDir, err := os.Getwd()
 	if err != nil {
 		log.Printf(color.RedString("Failed to get current directory: %v"), err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 	log.Println("Current Directory:", currentDir)
 
 	err = config.Load(configPath)
 	if err != nil {
 		log.Printf(color.RedString("Failed to load config: %v"), err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	grpcConfig, err := config.GetGrpcConfig()
 	if err != nil {
 		log.Printf(color.RedString("Failed to get gRPC config: %v"), err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
 	postgresqlConfig, err := config.GetPostgresqlConfig()
 	if err != nil {
 		log.Printf(color.RedString("Failed to get PostgreSQL config: %v"), err)
-		return nil, nil, err
+		return nil, nil, nil, err
 	}
 
-	return grpcConfig, postgresqlConfig, nil
+	httpConfig, err := config.GetHttpConfig()
+	if err != nil {
+		log.Printf(color.RedString("Failed to get HTTP config: %v"), err)
+		return nil, nil, nil, err
+	}
+
+	return grpcConfig, postgresqlConfig, httpConfig, nil
 }

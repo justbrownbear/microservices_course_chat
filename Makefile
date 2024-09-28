@@ -20,6 +20,8 @@ install-deps:
 	GOBIN=$(LOCAL_BIN) go install github.com/gojuno/minimock/v3/cmd/minimock@latest
 	GOBIN=$(LOCAL_BIN) go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.53.3
 	GOBIN=$(LOCAL_BIN) go install github.com/envoyproxy/protoc-gen-validate@v1.0.4
+	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway@v2.20.0
+	GOBIN=$(LOCAL_BIN) go install github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.20.0
 
 get-deps:
 	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
@@ -32,6 +34,9 @@ get-deps:
 	go get -u github.com/brianvoe/gofakeit
 	go get -u github.com/brianvoe/gofakeit/v6
 	go get -u github.com/stretchr/testify/require
+	go get -u google.golang.org/protobuf/cmd/protoc-gen-go
+	go get -u google.golang.org/grpc/cmd/protoc-gen-go-grpc
+	go get -u github.com/grpc-ecosystem/grpc-gateway/v2/runtime
 
 format:
 	find . -name '*.go' -exec $(LOCAL_BIN)/goimports -w {} \;
@@ -63,6 +68,8 @@ generate-chat-api:
 	--plugin=protoc-gen-go-grpc=bin/protoc-gen-go-grpc \
 	--validate_out lang=go:pkg/chat_v1 --validate_opt=paths=source_relative \
 	--plugin=protoc-gen-validate=bin/protoc-gen-validate \
+	--grpc-gateway_out=pkg/chat_v1 --grpc-gateway_opt=paths=source_relative \
+	--plugin=protoc-gen-grpc-gateway=bin/protoc-gen-grpc-gateway \
 	api/chat_v1/chat.proto
 
 generate-sqlc:

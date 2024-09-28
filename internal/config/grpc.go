@@ -54,14 +54,14 @@ func GetGrpcConfig() (GRPCConfig, error) {
 	return result, nil
 }
 
-func (c *grpcConfig) GetGrpcProtocol() string {
-	return c.Protocol
+func (instance *grpcConfig) GetGrpcProtocol() string {
+	return instance.Protocol
 }
 
-func (c *grpcConfig) GetGrpcHost() string {
-	return c.Host
+func (instance *grpcConfig) GetGrpcHost() string {
+	return instance.Host
 }
 
-func (c *grpcConfig) GetGrpcPort() uint16 {
-	return c.Port
+func (instance *grpcConfig) GetGrpcPort() uint16 {
+	return instance.Port
 }
