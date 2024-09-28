@@ -6,23 +6,23 @@ import (
 )
 
 const (
-	httpHostEnvName     = "HTTP_HOST"
-	httpPortEnvName     = "HTTP_PORT"
+	httpHostEnvName = "HTTP_HOST"
+	httpPortEnvName = "HTTP_PORT"
 )
 
 type httpConfig struct {
-	Host     string
-	Port     uint16
+	Host string
+	Port uint16
 }
 
-// HttpConfig интерфейс для получения конфигурации HTTP
-type HttpConfig interface {
-	GetHttpHost() string
-	GetHttpPort() uint16
+// HTTPConfig интерфейс для получения конфигурации HTTP
+type HTTPConfig interface {
+	GetHTTPHost() string
+	GetHTTPPort() uint16
 }
 
-// GetHttpConfig возвращает конфигурацию HTTP
-func GetHttpConfig() (*httpConfig, error) {
+// GetHTTPConfig возвращает конфигурацию HTTP
+func GetHTTPConfig() (*httpConfig, error) {
 	host := os.Getenv(httpHostEnvName)
 	if len(host) == 0 {
 		return nil, errors.New(httpHostEnvName + " parameter not set")
@@ -39,17 +39,17 @@ func GetHttpConfig() (*httpConfig, error) {
 	}
 
 	result := &httpConfig{
-		Host:     host,
-		Port:     portUint16,
+		Host: host,
+		Port: portUint16,
 	}
 
 	return result, nil
 }
 
-func (instance *httpConfig) GetHttpHost() string {
+func (instance *httpConfig) GetHTTPHost() string {
 	return instance.Host
 }
 
-func (instance *httpConfig) GetHttpPort() uint16 {
+func (instance *httpConfig) GetHTTPPort() uint16 {
 	return instance.Port
 }

@@ -6,17 +6,15 @@ import (
 	"google.golang.org/grpc"
 )
 
-
 type validator interface {
 	Validate() error
 }
 
-
-// ValidateRequest валидирует запрос
+// ValidateInterceptor валидирует запрос
 func ValidateInterceptor(
 	ctx context.Context,
 	request interface{},
-	info *grpc.UnaryServerInfo,
+	_ *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (interface{}, error) {
 	val, ok := request.(validator)

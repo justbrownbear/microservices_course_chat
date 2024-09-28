@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strconv"
 	"sync"
+	"time"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -25,31 +26,29 @@ import (
 	"github.com/justbrownbear/microservices_course_chat/pkg/chat_v1"
 )
 
-
 var dbPool *pgxpool.Pool
 var grpcConfig config.GRPCConfig
 var grpcServer *grpc.Server
 var httpServer *http.Server
-
 
 // InitApp initializes the gRPC server and registers the chat controller.
 func InitApp(
 	ctx context.Context,
 	postgresqlConfig config.PostgresqlConfig,
 	grpcConfigInstance config.GRPCConfig,
-	httpConfigInstance config.HttpConfig,
+	httpConfigInstance config.HTTPConfig,
 ) error {
 	var err error
 
 	grpcConfig = grpcConfigInstance
 
 	grpcServer = initGrpcServer()
-	httpServer, err = initHttpServer( ctx, grpcConfigInstance, httpConfigInstance )
+	httpServer, err = initHTTPServer(ctx, httpConfigInstance)
 	if err != nil {
 		return err
 	}
 
-	dbPool, err = initPostgreSqlPool( ctx, postgresqlConfig )
+	dbPool, err = initPostgreSQLPool(ctx, postgresqlConfig)
 	if err != nil {
 		return err
 	}
@@ -67,8 +66,8 @@ func StartApp() error {
 	waitGroup := sync.WaitGroup{}
 	waitGroup.Add(2)
 
-	go startGrpcServer( &waitGroup )
-	go startHttpServer( &waitGroup )
+	go startGrpcServer(&waitGroup)
+	go startHTTPServer(&waitGroup)
 
 	waitGroup.Wait()
 
@@ -85,7 +84,6 @@ func StopApp() {
 	log.Println(color.GreenString("Application stopped successfully. Bye."))
 }
 
-
 func initGrpcServer() *grpc.Server {
 	grpcServerInstance := grpc.NewServer(
 		// Прописываем интерцептор валидации для всех запросов
@@ -96,8 +94,7 @@ func initGrpcServer() *grpc.Server {
 	return grpcServerInstance
 }
 
-
-func startGrpcServer( waitGroup *sync.WaitGroup ) {
+func startGrpcServer(waitGroup *sync.WaitGroup) {
 	waitGroup.Add(1)
 	defer waitGroup.Done()
 
@@ -118,8 +115,7 @@ func startGrpcServer( waitGroup *sync.WaitGroup ) {
 	}
 }
 
-
-func initPostgreSqlPool(
+func initPostgreSQLPool(
 	ctx context.Context,
 	postgresqlConfig config.PostgresqlConfig,
 ) (*pgxpool.Pool, error) {
@@ -139,12 +135,10 @@ func initPostgreSqlPool(
 	return dbPool, nil
 }
 
-
-func initHttpServer(
+func initHTTPServer(
 	ctx context.Context,
-	grpcConfigInstance config.GRPCConfig,
-	httpConfigInstance config.HttpConfig,
-) ( *http.Server, error ) {
+	httpConfigInstance config.HTTPConfig,
+) (*http.Server, error) {
 	multiplexer := runtime.NewServeMux()
 
 	options := []grpc.DialOption{
@@ -153,25 +147,25 @@ func initHttpServer(
 
 	grpcAddress := getGrpcAddress()
 
-	err := chat_v1.RegisterChatV1HandlerFromEndpoint( ctx, multiplexer, grpcAddress, options)
+	err := chat_v1.RegisterChatV1HandlerFromEndpoint(ctx, multiplexer, grpcAddress, options)
 	if err != nil {
 		return nil, err
 	}
 
-	httpHost := httpConfigInstance.GetHttpHost()
-	httpPort := httpConfigInstance.GetHttpPort()
+	httpHost := httpConfigInstance.GetHTTPHost()
+	httpPort := httpConfigInstance.GetHTTPPort()
 	listenAddress := net.JoinHostPort(httpHost, strconv.Itoa(int(httpPort)))
 
-	httpServer := &http.Server{
-		Addr: listenAddress,
-		Handler: multiplexer,
+	httpServerInstance := &http.Server{
+		Addr:              listenAddress,
+		Handler:           multiplexer,
+		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	return httpServer, nil
+	return httpServerInstance, nil
 }
 
-
-func startHttpServer( waitGroup *sync.WaitGroup ) {
+func startHTTPServer(waitGroup *sync.WaitGroup) {
 	waitGroup.Add(1)
 	defer waitGroup.Done()
 
@@ -183,7 +177,6 @@ func startHttpServer( waitGroup *sync.WaitGroup ) {
 		return
 	}
 }
-
 
 func getGrpcAddress() string {
 	grpcHost := grpcConfig.GetGrpcHost()

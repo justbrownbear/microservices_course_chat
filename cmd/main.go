@@ -62,7 +62,7 @@ func main() {
 	log.Println("Shutting down app...")
 }
 
-func getConfig() (config.GRPCConfig, config.PostgresqlConfig, config.HttpConfig, error) {
+func getConfig() (config.GRPCConfig, config.PostgresqlConfig, config.HTTPConfig, error) {
 	flag.Parse()
 
 	currentDir, err := os.Getwd()
@@ -90,7 +90,7 @@ func getConfig() (config.GRPCConfig, config.PostgresqlConfig, config.HttpConfig,
 		return nil, nil, nil, err
 	}
 
-	httpConfig, err := config.GetHttpConfig()
+	httpConfig, err := config.GetHTTPConfig()
 	if err != nil {
 		log.Printf(color.RedString("Failed to get HTTP config: %v"), err)
 		return nil, nil, nil, err
