@@ -1,3 +1,7 @@
 .idea
 .vscode
 /bin/
+.env
+.env.local
+.env.prod
+certificates/
