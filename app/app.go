@@ -15,6 +15,7 @@ import (
 	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/reflection"
 
@@ -36,7 +37,6 @@ var grpcConfig config.GRPCConfig
 var grpcServer *grpc.Server
 var httpServer *http.Server
 var swaggerServer *http.Server
-
 
 // InitApp initializes the gRPC server and registers the chat controller.
 func InitApp(
@@ -100,7 +100,13 @@ func StopApp() {
 }
 
 func initGrpcServer() *grpc.Server {
+	creds, err := credentials.NewServerTLSFromFile("../certificates/service.pem", "../certificates/service.key")
+	if err != nil {
+		log.Fatalf("failed to load TLS keys: %v", err)
+	}
+
 	grpcServerInstance := grpc.NewServer(
+		grpc.Creds(creds),
 		// Прописываем интерцептор валидации для всех запросов
 		grpc.UnaryInterceptor(interceptor.ValidateInterceptor),
 	)
@@ -179,7 +185,7 @@ func initHTTPServer(
 
 	httpServerInstance := &http.Server{
 		Addr:              listenAddress,
-		Handler:           corsMiddleware.Handler( multiplexer ),
+		Handler:           corsMiddleware.Handler(multiplexer),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
@@ -243,7 +249,6 @@ func startSwaggerServer(waitGroup *sync.WaitGroup) {
 		return
 	}
 }
-
 
 func serveJsonFile(path string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

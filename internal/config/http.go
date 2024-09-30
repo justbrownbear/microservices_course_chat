@@ -6,14 +6,14 @@ import (
 )
 
 const (
-	httpHostEnvName = "HTTP_HOST"
-	httpPortEnvName = "HTTP_PORT"
+	httpHostEnvName        = "HTTP_HOST"
+	httpPortEnvName        = "HTTP_PORT"
 	httpSwaggerPortEnvName = "HTTP_SWAGGER_PORT"
 )
 
 type httpConfig struct {
-	Host string
-	Port uint16
+	Host        string
+	Port        uint16
 	SwaggerPort uint16
 }
 
@@ -52,8 +52,8 @@ func GetHTTPConfig() (*httpConfig, error) {
 	}
 
 	result := &httpConfig{
-		Host: host,
-		Port: portUint16,
+		Host:        host,
+		Port:        portUint16,
 		SwaggerPort: swaggerPortUint16,
 	}
 
